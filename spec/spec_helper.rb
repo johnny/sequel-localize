@@ -8,6 +8,8 @@ require 'rspec/autorun'
 
 DB = Sequel.sqlite
 Sequel::Model.plugin :schema
+require 'logger'
+DB.logger = Logger.new('db.log')
 
 require 'support/classes'
 #require 'shared_specs'

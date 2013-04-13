@@ -11,3 +11,4 @@ bin
 /.emacs-project
 /.irbrc
 *_out
+*.log

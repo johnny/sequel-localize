@@ -5,25 +5,23 @@ DB.create_table :foo_translations do
   integer :foo_id
 end
 
-
-class Foo < Sequel::Model
-  set_schema do
-    primary_key :id
-    varchar :name
-  end
-  plugin :localization
+DB.create_table :languages do
+  primary_key :id
+  String :code
+  String :name
 end
 
-class Language < Sequel::Model
-  set_schema do
-    primary_key :id
-    varchar :code #unique
-    varchar :name
-  end
+DB.create_table :foos do
+  primary_key :id
+  String :name
+end
 
+DB[:languages] << {"name"=>"en", "code" => 'en'}
+DB[:languages] << {"name"=>"de", "code" => 'de'}
+
+class Language < Sequel::Model
   # locale string like 'en'
   # validates_format_of :code, :with => /^[a-z]{2}$/
-
 
   class << self
     def [](code)
@@ -33,10 +31,12 @@ class Language < Sequel::Model
   end
 end
 
-[Foo, Language].each {|klass| klass.create_table!}
-DB[:languages] << {"name"=>"en", "code" => 'en'}
-DB[:languages] << {"name"=>"de", "code" => 'de'}
-DB[:foos] << {"name" => "bla"}
+class Foo < Sequel::Model
+  plugin :localization
+end
+
+
+DB[:foos] << {"id" => 1, "name" => "bla"}
 DB[:foo_translations] << {"title" => "de", "language_id" => Language.find(:code => 'de').id, "foo_id" => Foo.first.id}
 DB[:foo_translations] << {"title" => "en", "language_id" => Language.find(:code => 'en').id, "foo_id" => Foo.first.id}
 
