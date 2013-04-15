@@ -49,6 +49,16 @@ describe 'description' do
     a.update(:en => {:title => 'en up'}, :de => { :title => '' }).should be(false)
   end
 
+  it 'should work with single table inheritance' do
+    a = SpecialPost.new(:uri => 'test',
+                 :de => {
+                   :title => 'de'
+                 })
+    a.save.should be_true
+    a.title(:de).should == 'de'
+    SpecialPost.localized_fields.should == Post.localized_fields
+  end
+  
   it 'should create new setters on the fly' do
     l = Language[:xy]
     a = Post.new(:uri => 'test',

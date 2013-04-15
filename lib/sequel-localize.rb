@@ -12,16 +12,16 @@ module Sequel
       end
       module ClassMethods
         def _init_translations
-          @_lowercase_name = underscore(demodulize(self.to_s))
+          @@_lowercase_name = underscore(demodulize(self.to_s))
           create_translation_class
           create_translated_field_methods
           create_translation_accessors
         end
         def localized_fields
-          @localized_fields ||= translation_class.columns - [translation_class.primary_key, :"#{@_lowercase_name}_id", :language_id]
+          @@localized_fields ||= translation_class.columns - [translation_class.primary_key, :"#{@@_lowercase_name}_id", :language_id]
         end
         def translation_class
-          @translation_class ||= Object.const_get("#{self}Translation")
+          @@translation_class ||= Object.const_get("#{self}Translation")
         end
         def add_translation_accessors(code)
           create_translation_writer(code)
@@ -31,13 +31,13 @@ module Sequel
         protected
         
         def create_translation_class
-          one_to_many :"#{@_lowercase_name}_translations"
-          alias_method :translations_dataset, :"#{@_lowercase_name}_translations_dataset"
-          alias_method :translations, :"#{@_lowercase_name}_translations"
-          alias_method :add_translation, :"add_#{@_lowercase_name}_translation"
+          one_to_many :"#{@@_lowercase_name}_translations"
+          alias_method :translations_dataset, :"#{@@_lowercase_name}_translations_dataset"
+          alias_method :translations, :"#{@@_lowercase_name}_translations"
+          alias_method :add_translation, :"add_#{@@_lowercase_name}_translation"
           self.class_eval(<<-RUBY, __FILE__, __LINE__ + 1)
           class ::#{self}Translation < Sequel::Model
-            many_to_one :#{@_lowercase_name}
+            many_to_one :#{@@_lowercase_name}
             many_to_one :language
           end
           RUBY
@@ -54,9 +54,6 @@ module Sequel
             RUBY
           end
         end
-        # @param [String, Symbol] action The action to create the accessor for. Only works if action is a locale accessor
-        #
-        # @return [TrueClass, FalseClass] If the accessor has been created
         def create_translation_accessors
           Language.all.each do |l|
             create_translation_writer(l.code)
@@ -64,7 +61,6 @@ module Sequel
           end
         end
 
-        # @param [String] locale The locale to create the writer for
         def create_translation_writer(locale)
           self.class_eval(<<-RUBY, __FILE__, __LINE__ + 1)
           def #{locale}=(attributes = {})
@@ -76,7 +72,6 @@ module Sequel
           RUBY
         end
 
-        # @param [String] locale The locale to create the reader for
         def create_translation_reader(locale)
           self.class_eval(<<-RUBY, __FILE__, __LINE__ + 1)
           def #{locale}

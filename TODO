@@ -1,9 +1,8 @@
-* [4/6] Basis
+* [5/5] Basis
 - [X] infer translated fields from table and only use plugin :localize
 - [X] create setters
 - [X] spec
   - [X] setters and getters work
   - [X] validate translations
 - [X] validate translations
-- [ ] fail gracefully if translation table does not exist
-- [ ] ensure table inheritance works
+- [X] ensure table inheritance works
