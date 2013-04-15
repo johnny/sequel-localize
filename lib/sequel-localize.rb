@@ -1,8 +1,14 @@
+require 'sequel-localize/language'
+
 module Sequel
   module Plugins
     module Localization
       def self.configure(model, opts={})
         model._init_translations
+        localized_models << model
+      end
+      def self.localized_models
+        @localized_models ||= []
       end
       module ClassMethods
         def _init_translations
@@ -17,7 +23,13 @@ module Sequel
         def translation_class
           @translation_class ||= Object.const_get("#{self}Translation")
         end
+        def add_translation_accessors(code)
+          create_translation_writer(code)
+          create_translation_reader(code)
+        end
+        
         protected
+        
         def create_translation_class
           one_to_many :"#{@_lowercase_name}_translations"
           alias_method :translations_dataset, :"#{@_lowercase_name}_translations_dataset"
@@ -37,9 +49,7 @@ module Sequel
               (translation(locale) || translation(default_locale)).#{field_name}
             end
             def #{field_name}=(value, locale)
-              if translation_exists?(locale) || !_is_default(value)
-                translation(locale).#{field_name}= value
-              end
+              translation(locale).#{field_name}= value
             end
             RUBY
           end
@@ -77,7 +87,7 @@ module Sequel
       end
       module InstanceMethods
         def after_save
-          @_translations.each_value do |translation|
+          each_translation do |locale, translation|
             if translation.pk
               translation.save
             else
@@ -85,34 +95,31 @@ module Sequel
             end
           end
         end
+
         def default_locale
           'de'
         end
-        def translation_exists?(locale)
-          pk && translation(locale)
-        end
+
         def translation(locale)
-          l = Language.find(:code => locale.to_s)
+          l = Language[locale]
           (@_translations ||= {})[locale.to_sym] ||=
             if pk
-              translations.where(:language_id => l.id).first
-            else
-             self.class.translation_class.new(:language_id => l.id)
-            end
+              translations_dataset.where(:language_id => l.id).first 
+            end || self.class.translation_class.new(:language_id => l.id)
+        end
+
+        def validate
+          super
+          each_translation do |locale, translation|
+            errors.add(locale, translation.errors) unless translation.valid?
+          end
         end
 
         private
 
-        def _is_default(value)
-          if value.respond_to? :blank?
-            value.blank? || value == false
-          else
-            case value
-            when String then value.strip.empty?
-            when NilClass then true
-            else value.respond_to?(:empty?) && value.empty?
-            end
-          end
+        def each_translation(&block)
+          return unless @_translations
+          @_translations.each(&block)
         end
       end
     end
