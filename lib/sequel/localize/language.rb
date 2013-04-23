@@ -9,7 +9,7 @@ class Language < Sequel::Model
   end
 
   def after_create
-    Sequel::Plugins::Localization.localized_models.each do |m|
+    Sequel::Plugins::Localize.localized_models.each do |m|
       m.add_translation_accessors code
     end
   end

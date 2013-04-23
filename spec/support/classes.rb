@@ -17,7 +17,7 @@ DB[:languages] << {"name"=>"de", "code" => 'de'}
 
 
 class Post < Sequel::Model
-  plugin :localization
+  plugin :localize
   plugin :single_table_inheritance, :type
   
   def validate

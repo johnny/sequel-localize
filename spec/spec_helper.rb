@@ -15,7 +15,7 @@ DB.create_table :languages do
   String :name
 end
 
-require 'sequel-localize'
+require 'sequel/localize'
 
 require 'logger'
 DB.logger = Logger.new('db.log')

@@ -1,7 +1,13 @@
+PATH
+  remote: .
+  specs:
+    sequel-localize (0.0.1)
+
 GEM
   remote: https://rubygems.org/
   specs:
     diff-lcs (1.2.2)
+    rake (10.0.4)
     rspec (2.13.0)
       rspec-core (~> 2.13.0)
       rspec-expectations (~> 2.13.0)
@@ -17,6 +23,9 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  bundler
+  rake
   rspec
   sequel
+  sequel-localize!
   sqlite3

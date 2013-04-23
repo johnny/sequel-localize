@@ -1,7 +1,4 @@
 source 'https://rubygems.org'
 
-gem 'sqlite3'
-
-gem 'sequel'
-
-gem 'rspec'
+# Specify your gem's dependencies in sequel-localize.gemspec
+gemspec
