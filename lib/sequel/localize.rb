@@ -1,10 +1,10 @@
-require 'sequel/localize/language'
 require "sequel/localize/version"
 
 module Sequel
   module Plugins
     module Localize
       def self.configure(model, opts={})
+        require 'sequel/localize/language'
         model._init_translations
         localized_models << model
       end

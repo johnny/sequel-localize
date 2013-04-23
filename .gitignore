@@ -3,6 +3,7 @@
 # dirs
 .bundle
 bin
+pkg
 
 # tempfiles
 *[~#]
